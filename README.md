@@ -1,6 +1,6 @@
 # DocChat
 
-A multi-tenant, production RAG application — Mini Project 2 from the Full-Stack + GenAI Roadmap (Days 21–30).
+A multi-tenant, production RAG application.
 
 Users sign up, upload documents (PDF / text / Markdown), and chat with their knowledge base — getting streamed, cited answers.
 
