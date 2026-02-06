@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { asyncHandler } from "../lib/asyncHandler";
+import { getCachedAnswer, setCachedAnswer } from "../lib/cache";
 import { embedText } from "../lib/embeddings";
 import { badRequest } from "../lib/errors";
 import { streamAnswer } from "../lib/generation";
@@ -17,6 +18,7 @@ router.post(
     const { question } = req.body as { question?: string };
     if (!question?.trim()) throw badRequest("question is required");
 
+    const q = question.trim();
     const doc = await getDocumentById(req.params.id!, req.userId!);
     if (doc.status !== "ready") {
       throw badRequest(
@@ -24,14 +26,7 @@ router.post(
       );
     }
 
-    const queryEmbedding = await embedText(question.trim());
-    const similarChunks = await findSimilarChunks(queryEmbedding, doc.id);
-
-    if (similarChunks.length === 0) {
-      throw badRequest("No relevant content found in this document");
-    }
-
-    // SSE headers
+    // SSE headers — open before any await so the client can start reading
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -42,21 +37,43 @@ router.post(
     };
 
     try {
-      writeEvent(
-        "sources",
-        similarChunks.map((c) => ({
-          chunkIndex: c.chunkIndex,
-          preview:
-            c.content.length > 200 ? c.content.slice(0, 200) + "…" : c.content,
-        })),
-      );
+      // Cache hit — replay stored answer without hitting Gemini at all
+      const cached = await getCachedAnswer(doc.id, q);
+      if (cached) {
+        writeEvent("sources", cached.sources);
+        writeEvent("token", cached.answer);
+        writeEvent("done", {});
+        return;
+      }
 
-      // Stream answer tokens
-      for await (const token of streamAnswer(question.trim(), similarChunks)) {
+      // Cache miss — full RAG pipeline
+      const queryEmbedding = await embedText(q);
+      const similarChunks = await findSimilarChunks(queryEmbedding, doc.id);
+
+      if (similarChunks.length === 0) {
+        writeEvent("error", {
+          message: "No relevant content found in this document",
+        });
+        return;
+      }
+
+      const sources = similarChunks.map((c) => ({
+        chunkIndex: c.chunkIndex,
+        preview:
+          c.content.length > 200 ? c.content.slice(0, 200) + "…" : c.content,
+      }));
+      writeEvent("sources", sources);
+
+      let fullAnswer = "";
+      for await (const token of streamAnswer(q, similarChunks)) {
         writeEvent("token", token);
+        fullAnswer += token;
       }
 
       writeEvent("done", {});
+
+      // Persist to cache after streaming completes
+      await setCachedAnswer(doc.id, q, { sources, answer: fullAnswer });
     } catch {
       writeEvent("error", { message: "Answer generation failed" });
     } finally {

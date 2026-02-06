@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { env } from "../config/env";
+import { getCachedEmbedding, setCachedEmbedding } from "./cache";
 
 const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
@@ -22,9 +23,14 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
 }
 
 export async function embedText(text: string): Promise<number[]> {
+  const cached = await getCachedEmbedding(text);
+  if (cached) return cached;
+
   const response = await ai.models.embedContent({
     model: MODEL,
     contents: text,
   });
-  return response.embeddings![0]!.values!;
+  const embedding = response.embeddings![0]!.values!;
+  await setCachedEmbedding(text, embedding);
+  return embedding;
 }

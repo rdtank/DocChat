@@ -5,9 +5,10 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import { asyncHandler } from "../lib/asyncHandler";
+import { invalidateDocAnswers } from "../lib/cache";
 import { badRequest } from "../lib/errors";
-import { requireAuth } from "../middleware/requireAuth";
 import { ingestionQueue } from "../lib/queue";
+import { requireAuth } from "../middleware/requireAuth";
 import {
   createDocument,
   deleteDocument,
@@ -123,7 +124,10 @@ router.delete(
   "/:id",
   asyncHandler(async (req, res) => {
     const doc = await deleteDocument(req.params.id!, req.userId!);
-    await fs.unlink(doc.filePath).catch(() => null); // best-effort cleanup
+    await Promise.all([
+      fs.unlink(doc.filePath).catch(() => null),
+      invalidateDocAnswers(doc.id),
+    ]);
     res.json({ message: "Document deleted" });
   }),
 );
