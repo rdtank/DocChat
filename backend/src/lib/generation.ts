@@ -3,7 +3,7 @@ import { env } from "../config/env";
 import type { RetrievedChunk } from "../services/retrievalService";
 
 const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-2.5-flash";
 
 function buildPrompt(question: string, context: RetrievedChunk[]): string {
   const excerpts = context
