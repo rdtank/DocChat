@@ -74,7 +74,8 @@ router.post(
 
       // Persist to cache after streaming completes
       await setCachedAnswer(doc.id, q, { sources, answer: fullAnswer });
-    } catch {
+    } catch (err) {
+      console.error("[chat] RAG pipeline error:", err);
       writeEvent("error", { message: "Answer generation failed" });
     } finally {
       res.end();
