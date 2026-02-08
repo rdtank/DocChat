@@ -1,0 +1,20 @@
+{
+  "description": "DocChat eval dataset — replace documentId values with real IDs from your DB",
+  "cases": [
+    {
+      "id": "q1",
+      "documentId": "REPLACE_WITH_DOC_ID",
+      "question": "What is the main topic of this document?"
+    },
+    {
+      "id": "q2",
+      "documentId": "REPLACE_WITH_DOC_ID",
+      "question": "What are the key points or conclusions discussed?"
+    },
+    {
+      "id": "q3",
+      "documentId": "REPLACE_WITH_DOC_ID",
+      "question": "Are there any specific recommendations or action items mentioned?"
+    }
+  ]
+}
