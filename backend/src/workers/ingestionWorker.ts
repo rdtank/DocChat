@@ -11,9 +11,11 @@ import { updateDocumentStatus } from "../services/documentService";
 
 const require = createRequire(import.meta.url);
 
-const pdfParse = require("pdf-parse") as (
-  buffer: Buffer,
-) => Promise<{ text: string }>;
+const { PDFParse } = require("pdf-parse") as {
+  PDFParse: new (opts: { data: Buffer }) => {
+    getText(): Promise<{ text: string }>;
+  };
+};
 
 async function extractText(
   filePath: string,
@@ -22,8 +24,9 @@ async function extractText(
   const buffer = await fs.readFile(filePath);
 
   if (mimeType === "application/pdf") {
-    const parsed = await pdfParse(buffer);
-    return parsed.text;
+    const parser = new PDFParse({ data: buffer });
+    const result = await parser.getText();
+    return result.text;
   }
 
   // text/plain and text/markdown

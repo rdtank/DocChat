@@ -4,7 +4,8 @@ import { getCachedEmbedding, setCachedEmbedding } from "./cache";
 
 const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
-const MODEL = "text-embedding-004";
+const MODEL = "gemini-embedding-001";
+const DIMENSIONS = 768;
 const BATCH_SIZE = 100;
 
 export async function embedTexts(texts: string[]): Promise<number[][]> {
@@ -15,6 +16,7 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
     const response = await ai.models.embedContent({
       model: MODEL,
       contents: batch,
+      config: { outputDimensionality: DIMENSIONS },
     });
     embeddings.push(...response.embeddings!.map((e) => e.values!));
   }
@@ -29,6 +31,7 @@ export async function embedText(text: string): Promise<number[]> {
   const response = await ai.models.embedContent({
     model: MODEL,
     contents: text,
+    config: { outputDimensionality: DIMENSIONS },
   });
   const embedding = response.embeddings![0]!.values!;
   await setCachedEmbedding(text, embedding);
