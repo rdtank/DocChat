@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
-import { FileText } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useActionState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -33,18 +33,22 @@ export function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginAction, null);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-2">
-            <FileText className="h-8 w-8" />
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-br from-violet-50 via-white to-indigo-50" />
+      <div className="absolute -top-32 -right-32 w-120 h-120 rounded-full bg-violet-100/80 blur-3xl" />
+      <div className="absolute -bottom-32 -left-32 w-95 h-95 rounded-full bg-indigo-100/80 blur-3xl" />
+
+      <Card className="w-full max-w-sm relative z-10 shadow-xl shadow-violet-100/60 border-border/50">
+        <CardHeader className="text-center pb-2">
+          <div className="flex justify-center mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-200">
+              <Sparkles className="h-7 w-7 text-white" />
+            </div>
           </div>
-          <CardTitle className="text-2xl">DocChat</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Sign in to your account
-          </p>
+          <CardTitle className="text-2xl font-bold tracking-tight">DocChat</CardTitle>
+          <p className="text-sm text-muted-foreground">Sign in to your account</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           <form action={formAction} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
@@ -67,15 +71,17 @@ export function LoginPage() {
               />
             </div>
             {state?.error && (
-              <p className="text-sm text-destructive">{state.error}</p>
+              <p className="text-sm text-destructive bg-destructive/8 px-3 py-2 rounded-lg">
+                {state.error}
+              </p>
             )}
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? "Signing in…" : "Sign in"}
             </Button>
           </form>
-          <p className="text-center text-sm text-muted-foreground mt-4">
+          <p className="text-center text-sm text-muted-foreground mt-5">
             Don&apos;t have an account?{" "}
-            <Link to="/signup" className="underline text-foreground">
+            <Link to="/signup" className="text-primary font-medium hover:underline underline-offset-4">
               Sign up
             </Link>
           </p>
