@@ -6,7 +6,7 @@
   "description": "DocChat backend — Express + TypeScript + Drizzle",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsup src/index.ts --format esm --target node20 --out-dir dist --no-splitting",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
@@ -40,6 +40,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/pg": "^8.11.10",
     "drizzle-kit": "^0.30.1",
+    "tsup": "^8.5.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
