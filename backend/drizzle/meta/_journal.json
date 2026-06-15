@@ -8,6 +8,13 @@
       "when": 1781498521571,
       "tag": "0000_sparkling_jocasta",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781520000000,
+      "tag": "0001_documents_and_chunks",
+      "breakpoints": true
     }
   ]
 }
