@@ -3,7 +3,6 @@ import { Router } from "express";
 import fs from "fs/promises";
 import multer from "multer";
 import path from "path";
-import { fileURLToPath } from "url";
 import { asyncHandler } from "../lib/asyncHandler";
 import { invalidateDocAnswers } from "../lib/cache";
 import { badRequest } from "../lib/errors";
@@ -17,8 +16,7 @@ import {
 } from "../services/documentService";
 import { isAllowedMimeType } from "../validators/documents";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = path.resolve(__dirname, "../../uploads");
+const UPLOAD_DIR = path.join(process.cwd(), "uploads");
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
